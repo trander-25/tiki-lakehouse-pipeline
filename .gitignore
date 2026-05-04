@@ -40,3 +40,9 @@ dbt_tiki/logs/
 .vscode/
 .idea/
 .DS_Store
+
+# Preview data (if generated and stored locally)
+preview_data/
+
+# Logs
+logs/

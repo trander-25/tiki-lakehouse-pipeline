@@ -9,6 +9,7 @@ description = "A lakehouse project with crawler and dbt"
 requires-python = ">=3.9"
 dependencies = [
     # Crawler dependencies
+    "curl_cffi>=0.7.0",
     "requests==2.31.0",
     "pandas==2.2.1",
     "boto3==1.34.69",
@@ -29,3 +30,13 @@ dev = [
 
 [tool.black]
 line-length = 100
+
+[tool.setuptools]
+# This repository is a flat-layout workspace that contains multiple top-level
+# folders (crawler/, trino/, dbt_tiki/, logs/) that are not meant to be
+# auto-discovered as installable Python packages.
+#
+# Declare only the root module to avoid setuptools raising:
+# "Multiple top-level packages discovered in a flat-layout".
+py-modules = ["main"]
+packages = []

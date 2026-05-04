@@ -1,0 +1,26 @@
+dbt_tiki:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: 'tiki.duckdb'
+      extensions:
+        - httpfs
+        - aws
+      settings:
+        s3_endpoint: 'localhost:9000'
+        s3_access_key_id: 'admin'
+        s3_secret_access_key: 'password'
+        s3_region: 'us-east-1'
+        s3_use_ssl: false
+        s3_url_style: 'path'
+    trino:
+      type: trino
+      method: none
+      user: admin
+      password: ""
+      host: localhost
+      port: 8080
+      catalog: iceberg
+      schema: marts
+      threads: 4
