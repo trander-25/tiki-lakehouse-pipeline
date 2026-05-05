@@ -54,7 +54,7 @@ services:
     image: trinodb/trino:latest
     container_name: tiki_trino
     ports:
-      - "8080:8080"
+      - "8082:8080"
     volumes:
       - ./trino/etc:/etc/trino
       - trino_metastore:/var/lib/trino/metastore

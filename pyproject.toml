@@ -19,6 +19,7 @@ dependencies = [
     "dbt-duckdb",
     "sqlfluff",
     "apache-airflow==2.11.1",
+    "astronomer-cosmos>=1.14.1",
 ]
 
 [project.optional-dependencies]

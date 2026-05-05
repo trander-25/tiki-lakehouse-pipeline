@@ -1,0 +1,118 @@
+version: 2
+
+models:
+  - name: stg_products
+    description: Product snapshots staged from raw parquet (typed, parsed, and lightly cleaned).
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [product_id, extracted_at_ts]
+    columns:
+      - name: product_id
+        description: Natural product identifier from source.
+        data_tests: [not_null]
+      - name: extracted_at_ts
+        description: Snapshot timestamp parsed from extracted_at.
+        data_tests: [not_null]
+      - name: extracted_date
+        description: Snapshot date derived from extracted_at_ts.
+        data_tests: [not_null]
+      - name: sku
+        description: Stock keeping unit from source.
+      - name: product_name
+        description: Product name from source.
+      - name: product_type
+        description: Product type/category label from source.
+      - name: brand_name
+        description: Brand name string as provided by source.
+      - name: author_name
+        description: Author name string as provided by source.
+      - name: seller_id
+        description: Natural seller identifier from source.
+      - name: primary_category_id
+        description: Natural category identifier parsed from primary_category_path.
+
+  - name: stg_books
+    description: Book-only projection from product snapshots (subset of columns for analytics).
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [product_id, extracted_at]
+    columns:
+      - name: product_id
+        description: Natural product identifier from source.
+        data_tests: [not_null]
+      - name: extracted_at
+        description: Raw snapshot timestamp string (YYYYMMDD_HHMMSS).
+        data_tests: [not_null]
+      - name: product_name
+        description: Product name.
+      - name: author_name
+        description: Author name.
+      - name: brand_name
+        description: Brand name.
+      - name: inventory_status
+        description: Inventory status at snapshot time.
+      - name: price
+        description: Snapshot price.
+      - name: original_price
+        description: Snapshot original price.
+      - name: discount
+        description: Snapshot discount amount.
+      - name: discount_rate
+        description: Snapshot discount rate.
+      - name: rating_average
+        description: Snapshot rating average.
+      - name: review_count
+        description: Snapshot review count.
+      - name: quantity_sold
+        description: Snapshot quantity sold.
+
+  - name: stg_brands
+    description: Distinct cleaned brand names derived from staged products.
+    columns:
+      - name: brand_nk
+        description: Normalized brand natural key (lower(trim(brand_name))).
+        data_tests: [not_null, unique]
+      - name: brand_name
+        description: Display brand name.
+        data_tests: [not_null]
+
+  - name: stg_authors
+    description: Distinct cleaned author names derived from staged products.
+    columns:
+      - name: author_nk
+        description: Normalized author natural key (lower(trim(author_name))).
+        data_tests: [not_null, unique]
+      - name: author_name
+        description: Display author name.
+        data_tests: [not_null]
+
+  - name: stg_categories
+    description: Distinct cleaned categories derived from staged products.
+    columns:
+      - name: category_id
+        description: Natural category identifier from source.
+        data_tests: [not_null, unique]
+      - name: category_name
+        description: Primary category display name.
+      - name: category_l1_name
+        description: Level 1 category display name.
+      - name: category_l2_name
+        description: Level 2 category display name.
+      - name: category_l3_name
+        description: Level 3 category display name.
+
+  - name: stg_sellers
+    description: Latest known seller attributes per seller_id derived from staged products.
+    columns:
+      - name: seller_id
+        description: Natural seller identifier from source.
+        data_tests: [not_null, unique]
+      - name: seller_type
+        description: Seller type parsed from impression info.
+      - name: seller_raw
+        description: Raw seller payload from source.
+      - name: extracted_at_ts
+        description: Snapshot timestamp used to pick latest seller attributes.
+

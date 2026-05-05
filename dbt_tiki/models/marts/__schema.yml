@@ -1,0 +1,309 @@
+version: 2
+
+models:
+  - name: dim_products
+    description: Product dimension (latest attributes per product) with surrogate key for star schema.
+    columns:
+      - name: product_sk
+        description: Surrogate key for product (generated from product_id).
+        data_tests: [not_null, unique]
+      - name: product_id
+        description: Natural product identifier from source.
+        data_tests: [not_null, unique]
+      - name: sku
+        description: Product SKU.
+      - name: product_name
+        description: Product name.
+      - name: brand_name
+        description: Brand name attribute (raw display).
+      - name: author_name
+        description: Author name attribute (raw display).
+      - name: seller_id
+        description: Natural seller id attribute from source.
+      - name: category_id
+        description: Natural category id attribute from source.
+
+  - name: dim_brands
+    description: Brand dimension with normalized natural key and surrogate key.
+    columns:
+      - name: brand_sk
+        description: Surrogate key for brand.
+        data_tests: [not_null, unique]
+      - name: brand_nk
+        description: Normalized brand natural key.
+        data_tests: [not_null, unique]
+      - name: brand_name
+        description: Display brand name.
+
+  - name: dim_authors
+    description: Author dimension with normalized natural key and surrogate key.
+    columns:
+      - name: author_sk
+        description: Surrogate key for author.
+        data_tests: [not_null, unique]
+      - name: author_nk
+        description: Normalized author natural key.
+        data_tests: [not_null, unique]
+      - name: author_name
+        description: Display author name.
+
+  - name: dim_categories
+    description: Category dimension with surrogate key.
+    columns:
+      - name: category_sk
+        description: Surrogate key for category.
+        data_tests: [not_null, unique]
+      - name: category_id
+        description: Natural category identifier from source.
+        data_tests: [not_null, unique]
+      - name: category_name
+        description: Category display name.
+      - name: category_l1_name
+        description: Level 1 category display name.
+      - name: category_l2_name
+        description: Level 2 category display name.
+      - name: category_l3_name
+        description: Level 3 category display name.
+
+  - name: dim_sellers
+    description: Seller dimension with surrogate key (latest attributes per seller).
+    columns:
+      - name: seller_sk
+        description: Surrogate key for seller.
+        data_tests: [not_null, unique]
+      - name: seller_id
+        description: Natural seller identifier from source.
+        data_tests: [not_null, unique]
+      - name: seller_type
+        description: Seller type attribute.
+      - name: seller_raw
+        description: Raw seller payload.
+
+  - name: dim_dates
+    description: Date dimension derived from product snapshot dates.
+    columns:
+      - name: date_key
+        description: Integer date key (YYYYMMDD).
+        data_tests: [not_null, unique]
+      - name: date_day
+        description: Date value.
+        data_tests: [not_null, unique]
+      - name: year
+        description: Calendar year.
+      - name: quarter
+        description: Calendar quarter.
+      - name: month
+        description: Calendar month.
+      - name: year_month
+        description: Year-month string (YYYY-MM).
+      - name: weekday_name
+        description: Weekday name.
+
+  - name: fct_product_snapshots
+    description: Product snapshot fact table (one row per product per snapshot timestamp) using surrogate foreign keys.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [product_sk, extracted_at_ts]
+    columns:
+      - name: snapshot_sk
+        description: Surrogate key for snapshot grain (product_id + extracted_at_ts).
+        data_tests: [not_null, unique]
+      - name: product_sk
+        description: Foreign key to dim_products.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: product_sk
+      - name: date_key
+        description: Foreign key to dim_dates.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_dates')
+                field: date_key
+      - name: brand_sk
+        description: Foreign key to dim_brands (nullable).
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_brands')
+                field: brand_sk
+              config:
+                where: "brand_sk is not null"
+      - name: author_sk
+        description: Foreign key to dim_authors (nullable).
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_authors')
+                field: author_sk
+              config:
+                where: "author_sk is not null"
+      - name: category_sk
+        description: Foreign key to dim_categories (nullable).
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_categories')
+                field: category_sk
+              config:
+                where: "category_sk is not null"
+      - name: seller_sk
+        description: Foreign key to dim_sellers (nullable).
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_sellers')
+                field: seller_sk
+              config:
+                where: "seller_sk is not null"
+      - name: extracted_at_ts
+        description: Snapshot timestamp.
+        data_tests: [not_null]
+      - name: extracted_date
+        description: Snapshot date.
+        data_tests: [not_null]
+      - name: price
+        description: Snapshot price.
+      - name: list_price
+        description: Snapshot list price.
+      - name: original_price
+        description: Snapshot original price.
+      - name: discount_amount
+        description: Snapshot discount amount.
+      - name: discount_rate
+        description: Snapshot discount rate.
+      - name: rating_average
+        description: Snapshot rating average.
+      - name: review_count
+        description: Snapshot review count.
+      - name: order_count
+        description: Snapshot order count.
+      - name: favourite_count
+        description: Snapshot favourite count.
+      - name: quantity_sold
+        description: Snapshot quantity sold.
+
+  - name: fct_books
+    description: Book snapshot fact table (subset of product snapshots) using surrogate foreign keys.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [product_sk, extracted_at_ts]
+    columns:
+      - name: book_snapshot_sk
+        description: Surrogate key for book snapshot grain (product_sk + extracted_at_ts).
+        data_tests: [not_null, unique]
+      - name: product_sk
+        description: Foreign key to dim_products.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: product_sk
+      - name: date_key
+        description: Foreign key to dim_dates.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_dates')
+                field: date_key
+      - name: brand_sk
+        description: Foreign key to dim_brands (nullable).
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_brands')
+                field: brand_sk
+              config:
+                where: "brand_sk is not null"
+      - name: author_sk
+        description: Foreign key to dim_authors (nullable).
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_authors')
+                field: author_sk
+              config:
+                where: "author_sk is not null"
+      - name: extracted_at_ts
+        description: Snapshot timestamp.
+        data_tests: [not_null]
+
+  - name: fct_brands_daily
+    description: Daily brand-level aggregates derived from fct_product_snapshots.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [date_key, brand_sk]
+    columns:
+      - name: date_key
+        description: Foreign key to dim_dates.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_dates')
+                field: date_key
+      - name: brand_sk
+        description: Foreign key to dim_brands.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_brands')
+                field: brand_sk
+
+  - name: fct_sellers_daily
+    description: Daily seller-level aggregates derived from fct_product_snapshots.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [date_key, seller_sk]
+    columns:
+      - name: date_key
+        description: Foreign key to dim_dates.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_dates')
+                field: date_key
+      - name: seller_sk
+        description: Foreign key to dim_sellers.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_sellers')
+                field: seller_sk
+
+  - name: fct_categories_daily
+    description: Daily category-level aggregates derived from fct_product_snapshots.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [date_key, category_sk]
+    columns:
+      - name: date_key
+        description: Foreign key to dim_dates.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_dates')
+                field: date_key
+      - name: category_sk
+        description: Foreign key to dim_categories.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_categories')
+                field: category_sk

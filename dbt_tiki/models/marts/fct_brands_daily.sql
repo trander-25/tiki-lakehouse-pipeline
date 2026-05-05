@@ -11,7 +11,7 @@ WITH base AS (
         favourite_count,
         quantity_sold,
         product_sk
-    FROM {{ ref('fct_product_snapshot') }}
+    FROM {{ ref('fct_product_snapshots') }}
 )
 
 SELECT

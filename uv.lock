@@ -8,6 +8,15 @@ resolution-markers = [
 ]
 
 [[package]]
+name = "aenum"
+version = "3.1.17"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/07/e9/8b283567c1fef7c24d1f390b37daede8b61593d8cdaffb8e95d571699e83/aenum-3.1.17.tar.gz", hash = "sha256:a969a4516b194895de72c875ece355f17c0d272146f7fda346ef74f93cf4d5ba", size = 137648, upload-time = "2026-03-20T20:43:29.846Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/48/8d/1fe30c6fd8999b9d462547c4a1bb6690bda24af38f2913c4bec7decb81f2/aenum-3.1.17-py3-none-any.whl", hash = "sha256:8b883a37a04e74cc838ac442bdd28c266eae5bbf13e1342c7ef123ed25230139", size = 165560, upload-time = "2026-03-20T20:43:27.681Z" },
+]
+
+[[package]]
 name = "agate"
 version = "1.9.1"
 source = { registry = "https://pypi.org/simple" }
@@ -421,6 +430,26 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/63/40/f03da1264ae8f7cfdbf9146542e5e7e8100a4c66ab48e791df9a03d3f6c0/asgiref-3.11.1.tar.gz", hash = "sha256:5f184dc43b7e763efe848065441eac62229c9f7b0475f41f80e207a114eda4ce", size = 38550, upload-time = "2026-02-03T13:30:14.33Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5c/0a/a72d10ed65068e115044937873362e6e32fab1b7dce0046aeb224682c989/asgiref-3.11.1-py3-none-any.whl", hash = "sha256:e8667a091e69529631969fd45dc268fa79b99c92c5fcdda727757e52146ec133", size = 24345, upload-time = "2026-02-03T13:30:13.039Z" },
+]
+
+[[package]]
+name = "astronomer-cosmos"
+version = "1.14.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aenum" },
+    { name = "apache-airflow" },
+    { name = "attrs" },
+    { name = "deprecation" },
+    { name = "jinja2" },
+    { name = "msgpack" },
+    { name = "openlineage-integration-common" },
+    { name = "packaging" },
+    { name = "virtualenv" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/05/b3/6b525f23c21573f49cc7fd4f3580300a4af5f90946c25d5a4c22b32cba6d/astronomer_cosmos-1.14.1.tar.gz", hash = "sha256:634767dd727c993cf835312c97c73de69fb6d08fb891a1100e20bdd59c9ae752", size = 166806, upload-time = "2026-04-23T14:35:27.986Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c9/53/38a711a06e2a2c4d3ff034e51d609b6aabd4aa86a0892f2a040aa4fd7b25/astronomer_cosmos-1.14.1-py3-none-any.whl", hash = "sha256:39612c536bca2de3420999b2fb8e75720f45ad3e1e4b6be4202e602edfbfb076", size = 227479, upload-time = "2026-04-23T14:35:25.444Z" },
 ]
 
 [[package]]
@@ -1031,6 +1060,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/49/85/12f0a49a7c4ffb70572b6c2ef13c90c88fd190debda93b23f026b25f9634/deprecated-1.3.1.tar.gz", hash = "sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223", size = 2932523, upload-time = "2025-10-30T08:19:02.757Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/84/d0/205d54408c08b13550c733c4b85429e7ead111c7f0014309637425520a9a/deprecated-1.3.1-py2.py3-none-any.whl", hash = "sha256:597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f", size = 11298, upload-time = "2025-10-30T08:19:00.758Z" },
+]
+
+[[package]]
+name = "deprecation"
+version = "2.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "packaging" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5a/d3/8ae2869247df154b64c1884d7346d412fed0c49df84db635aab2d1c40e62/deprecation-2.1.0.tar.gz", hash = "sha256:72b3bde64e5d778694b0cf68178aed03d15e15477116add3fb773e581f9518ff", size = 173788, upload-time = "2020-04-20T14:23:38.738Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/02/c3/253a89ee03fc9b9682f1541728eb66db7db22148cd94f89ab22528cd1e1b/deprecation-2.1.0-py2.py3-none-any.whl", hash = "sha256:a10811591210e1fb0e768a8c25517cabeabcba6f0bf96564f8ff45189f90b14a", size = 11178, upload-time = "2020-04-20T14:23:36.581Z" },
 ]
 
 [[package]]
@@ -2110,6 +2151,47 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/76/8c/2ba3902e1a0fc1c74962ea9bb33a534bb05984ad7ff9515bf8d07527cadd/numpy-1.26.4-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:1dda2e7b4ec9dd512f84935c5f126c8bd8b9f2fc001e9f54af255e8c5f16b0e0", size = 17786643, upload-time = "2024-02-05T23:57:56.585Z" },
     { url = "https://files.pythonhosted.org/packages/28/4a/46d9e65106879492374999e76eb85f87b15328e06bd1550668f79f7b18c6/numpy-1.26.4-cp312-cp312-win32.whl", hash = "sha256:50193e430acfc1346175fcbdaa28ffec49947a06918b7b92130744e81e640110", size = 5677803, upload-time = "2024-02-05T23:58:08.963Z" },
     { url = "https://files.pythonhosted.org/packages/16/2e/86f24451c2d530c88daf997cb8d6ac622c1d40d19f5a031ed68a4b73a374/numpy-1.26.4-cp312-cp312-win_amd64.whl", hash = "sha256:08beddf13648eb95f8d867350f6a018a4be2e5ad54c8d8caed89ebca558b2818", size = 15517754, upload-time = "2024-02-05T23:58:36.364Z" },
+]
+
+[[package]]
+name = "openlineage-integration-common"
+version = "1.46.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "attrs" },
+    { name = "openlineage-python" },
+    { name = "openlineage-sql" },
+    { name = "pyyaml" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ab/52/d81eca43a980058b661868fdeb9f5d4af876d1dab982635c859756907fee/openlineage_integration_common-1.46.0-py3-none-any.whl", hash = "sha256:bdc50613b94346dd9f3441d079260282e7cc85cc16ea1469630a9c76912d5d92", size = 59006, upload-time = "2026-04-08T13:20:18.972Z" },
+]
+
+[[package]]
+name = "openlineage-python"
+version = "1.31.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "attrs" },
+    { name = "packaging" },
+    { name = "python-dateutil" },
+    { name = "pyyaml" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/16/6a/870c530458ea59293df7e47729560b2270628650e3a9f199c2a0d408b783/openlineage_python-1.31.0.tar.gz", hash = "sha256:41d94fca26737a2beee016f6b3526372af14aacd45bc43e8938e577e4d559552", size = 58994, upload-time = "2025-04-10T14:19:07.953Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6d/bc/1f01c89f15dc79d46aae3d605eaa5a81dd05f55367dfeb8d8086f6b25c73/openlineage_python-1.31.0-py3-none-any.whl", hash = "sha256:c62ba07c464be4e73d6a45a0e0014da02a9ad6cd7073c181f1404be8be71e855", size = 65742, upload-time = "2025-04-10T14:18:58.824Z" },
+]
+
+[[package]]
+name = "openlineage-sql"
+version = "1.46.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/88/cb/2ce8509435620a20102df0dc1b84c8cd22e743e3b4c352a42b9ad5678389/openlineage_sql-1.46.0.tar.gz", hash = "sha256:af163a6d58d9e38f819af4ceaba15ff1046ffc46a886c29a0713459d800ad547", size = 40503, upload-time = "2026-04-08T13:20:25.804Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/57/3b/8840eaab777c83bcb58cebfdf195398cab9de1d3a6db8c857fe9a38ae403/openlineage_sql-1.46.0-cp310-abi3-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl", hash = "sha256:959620f4a5d0ab51586b4cb296f1b104fb6db1b46e48b37178d9e7c7996c813f", size = 4894095, upload-time = "2026-04-08T13:20:21.375Z" },
+    { url = "https://files.pythonhosted.org/packages/b4/33/eb2f193f77a3ad91a1236b72f623285785de0d90759f4558acd3e8a85471/openlineage_sql-1.46.0-cp310-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:7f238fcac444262f9db43c6ba6f4a1b841e216beb0883a5e75abe425e2c43bb7", size = 2443342, upload-time = "2026-04-08T13:20:23.332Z" },
+    { url = "https://files.pythonhosted.org/packages/97/7e/103c62d8f5dbd7425432c849dc172174f8ccccf747067e8a3354ae3de802/openlineage_sql-1.46.0-cp310-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:adf147b14665730e381b362dd721cebff56feff57744681f128a7b3f48ecbe8b", size = 2612927, upload-time = "2026-04-08T13:20:24.556Z" },
 ]
 
 [[package]]
@@ -3238,6 +3320,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "apache-airflow" },
+    { name = "astronomer-cosmos" },
     { name = "boto3" },
     { name = "curl-cffi" },
     { name = "dbt-duckdb" },
@@ -3259,6 +3342,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "apache-airflow", specifier = "==2.11.1" },
+    { name = "astronomer-cosmos", specifier = ">=1.14.1" },
     { name = "black", marker = "extra == 'dev'" },
     { name = "boto3", specifier = "==1.34.69" },
     { name = "curl-cffi", specifier = ">=0.7.0" },

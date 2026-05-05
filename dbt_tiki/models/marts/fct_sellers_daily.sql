@@ -4,7 +4,6 @@ WITH base AS (
     SELECT
         date_key,
         seller_sk,
-        seller_id,
         price,
         discount_rate,
         rating_average,
@@ -12,13 +11,12 @@ WITH base AS (
         favourite_count,
         quantity_sold,
         product_sk
-    FROM {{ ref('fct_product_snapshot') }}
+    FROM {{ ref('fct_product_snapshots') }}
 )
 
 SELECT
     date_key,
     seller_sk,
-    seller_id,
     COUNT(DISTINCT product_sk) AS products_cnt,
     AVG(price) AS avg_price,
     AVG(discount_rate) AS avg_discount_rate,
@@ -28,4 +26,4 @@ SELECT
     SUM(quantity_sold) AS quantity_sold_sum
 FROM base
 WHERE seller_sk IS NOT NULL
-GROUP BY 1, 2, 3
+GROUP BY 1, 2

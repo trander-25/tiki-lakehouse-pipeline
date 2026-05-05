@@ -2,7 +2,7 @@
 
 WITH dates AS (
     SELECT DISTINCT extracted_date AS date_day
-    FROM {{ ref('stg_tiki_products') }}
+    FROM {{ ref('stg_products') }}
     WHERE extracted_date IS NOT NULL
 )
 

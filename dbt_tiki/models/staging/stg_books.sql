@@ -12,4 +12,4 @@ SELECT
     TRY_CAST(rating_average AS FLOAT) AS rating_average,
     TRY_CAST(review_count AS INTEGER) AS review_count,
     TRY_CAST(quantity_sold AS INTEGER) AS quantity_sold
-FROM {{ ref('stg_tiki_products') }}
+FROM {{ ref('stg_products') }}

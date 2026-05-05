@@ -18,9 +18,9 @@ WITH base AS (
         brand_name,
         author_name,
         seller_id,
-        primary_category_id,
+        primary_category_id AS category_id,
         extracted_at_ts
-    FROM {{ ref('stg_tiki_products') }}
+    FROM {{ ref('stg_products') }}
 ),
 
 latest AS (
@@ -32,7 +32,7 @@ latest AS (
 )
 
 SELECT
-    md5(CAST(b.product_id AS VARCHAR)) AS product_sk,
+    {{ dbt_utils.generate_surrogate_key(['b.product_id']) }} AS product_sk,
     b.product_id,
     b.sku,
     b.product_name,
@@ -46,19 +46,12 @@ SELECT
     b.has_ebook,
     b.shippable,
     b.is_visible,
-
-    CASE WHEN b.brand_name IS NOT NULL AND TRIM(b.brand_name) <> '' THEN md5(LOWER(TRIM(b.brand_name))) END AS brand_sk,
-    NULLIF(TRIM(b.brand_name), '') AS brand_name,
-
-    CASE WHEN b.author_name IS NOT NULL AND TRIM(b.author_name) <> '' THEN md5(LOWER(TRIM(b.author_name))) END AS author_sk,
-    NULLIF(TRIM(b.author_name), '') AS author_name,
-
-    CASE WHEN b.seller_id IS NOT NULL THEN md5(CAST(b.seller_id AS VARCHAR)) END AS seller_sk,
+    b.brand_name,
+    b.author_name,
     b.seller_id,
-
-    CASE WHEN b.primary_category_id IS NOT NULL THEN md5(CAST(b.primary_category_id AS VARCHAR)) END AS category_sk,
-    b.primary_category_id AS category_id
+    b.category_id
 FROM base b
-JOIN latest l
+INNER JOIN latest l
     ON b.product_id = l.product_id
    AND b.extracted_at_ts = l.latest_extracted_at_ts
+
