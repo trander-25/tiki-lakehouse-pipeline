@@ -1,7 +1,4 @@
-{{ config(
-    materialized='external',
-    location='s3://raw-data/marts/fct_tiki_books.parquet'
-) }}
+{{ config(materialized='view') }}
 
 WITH staging AS (
     SELECT * FROM {{ ref('stg_tiki_books') }}

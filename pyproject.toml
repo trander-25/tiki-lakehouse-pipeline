@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "tiki-lakehouse"
 version = "0.1.0"
 description = "A lakehouse project with crawler and dbt"
-requires-python = ">=3.9"
+requires-python = ">=3.10,<3.13"
 dependencies = [
     # Crawler dependencies
     "curl_cffi>=0.7.0",
@@ -17,7 +17,8 @@ dependencies = [
     "pyarrow==15.0.2",
     # dbt dependencies
     "dbt-duckdb",
-    "sqlfluff"
+    "sqlfluff",
+    "apache-airflow==2.11.1",
 ]
 
 [project.optional-dependencies]
