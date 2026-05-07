@@ -13,7 +13,7 @@ default_args = {
 
 # 2. Khởi tạo DAG
 with DAG(
-    '0_test_symlink_dag', # Tên DAG hiển thị trên giao diện
+    'test_airflow_dag', # Tên DAG hiển thị trên giao diện
     default_args=default_args,
     description='DAG đơn giản để test kết nối symlink',
     schedule_interval=None,  # Chỉ chạy thủ công khi nhấn Trigger
