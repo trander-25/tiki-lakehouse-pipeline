@@ -20,6 +20,9 @@ dependencies = [
     "sqlfluff",
     "apache-airflow==2.11.1",
     "astronomer-cosmos>=1.14.1",
+    "duckdb>=1.5.2",
+    "matplotlib>=3.10.9",
+    "seaborn>=0.13.2",
 ]
 
 [project.optional-dependencies]
