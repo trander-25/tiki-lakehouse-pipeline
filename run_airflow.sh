@@ -25,6 +25,10 @@ export AIRFLOW__CORE__DAGS_FOLDER
 # 3. Ensure DB path is valid (avoid falling back to /airflow.db)
 : "${AIRFLOW__DATABASE__SQL_ALCHEMY_CONN:=sqlite:///${AIRFLOW_HOME}/airflow.db}"
 
+# Keep the local launcher on the Airflow 2 XCom backend.
+: "${AIRFLOW__CORE__XCOM_BACKEND:=airflow.models.xcom.BaseXCom}"
+export AIRFLOW__CORE__XCOM_BACKEND
+
 run_airflow() {
   if command -v uv >/dev/null 2>&1; then
     AIRFLOW__CORE__DAGS_FOLDER="$AIRFLOW__CORE__DAGS_FOLDER" uv run airflow "$@"
