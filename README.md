@@ -1,175 +1,160 @@
-# Tiki Lakehouse Pipeline
+<div align="center">
+  <h1>Tiki Lakehouse Project 🌊🛒</h1>
+  <p><em> modern local data platform for crawling, modeling, orchestrating, and visualizing Tiki.vn product data</em></p>
 
-A local data engineering project that demonstrates an end-to-end lakehouse workflow for crawling product data from Tiki, storing it in MinIO, transforming it with dbt and DuckDB, orchestrating jobs with Airflow, and serving analytics through Trino and Superset.
+  [![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white)]()
+  [![dbt](https://img.shields.io/badge/dbt-DuckDB-FF694B?logo=dbt&logoColor=white)]()
+  [![Trino](https://img.shields.io/badge/Trino-Query_Engine-DD00A1?logo=trino&logoColor=white)]()
+  [![MinIO](https://img.shields.io/badge/MinIO-S3_Storage-C7202C?logo=minio&logoColor=white)]()
+  [![Airflow](https://img.shields.io/badge/Airflow-Orchestration-017CEE?logo=apache-airflow&logoColor=white)]()
+</div>
 
-This repository uses `uv` for Python dependency management and Docker Compose for the supporting services.
 
-## Project Overview
+---
 
-The project follows a Medallion-style data flow:
+## 📖 Project Overview
 
-- **Bronze**: raw product data is collected by the crawler and uploaded to MinIO.
-- **Silver**: dbt staging models clean, type, and standardize the raw data.
-- **Gold**: dbt marts build dimensional and fact tables for analytics and reporting.
+This project implements a local **lakehouse-style modern data stack** that simulates an end-to-end e-commerce analytics workflow for Tiki.vn. It crawls product data, stores raw extracts in MinIO, transforms them with dbt and DuckDB, orchestrates the daily flow with Airflow, and serves curated data through Trino and Superset.
 
-The goal is to provide a practical, reproducible local data platform that is easy to run, inspect, and extend.
+### Key Features
+- **Automated Ingestion**: A custom crawler fetches Tiki product data from the public API and writes raw Parquet files to MinIO.
+- **Medallion-Style Modeling**: dbt builds a clear Bronze → Silver → Gold flow with staging and mart models.
+- **Lakehouse Storage**: Raw and curated datasets live in S3-compatible object storage for easy inspection and reuse.
+- **Orchestration**: Airflow runs the daily pipeline from ingestion to analytics.
+- **Serving Layer**: Trino queries the curated layer, while Superset is used for dashboards and exploration.
+- **Analytics Output**: A DuckDB-based script generates a top-selling-books chart in the local assets folder.
+- **Developer Friendly**: `uv`, `Makefile` targets, and Docker Compose keep the workflow reproducible on a laptop.
 
-## Architecture
+## 🛠️ Tech Stack & Architecture
 
-Add your architecture image here.
+<div align="center">
+	<img src="assets/architecture.png" alt="Tiki Lakehouse Architecture" width="800">
+</div>
 
-Suggested file:
+| Layer | Component | Technology | Description |
+| :--- | :--- | :---: | :--- |
+| **Ingestion** | Crawler | 🐍 Python | Fetches product listings from the Tiki API and stores raw extracts as Parquet files. |
+| **Storage** | Object Store | 🪣 MinIO | Hosts the raw Bronze data and curated lakehouse outputs. |
+| **Transform** | Data Modeling | 🔨 dbt + DuckDB | Cleans and models the raw data into staging and mart layers. |
+| **Orchestration** | Scheduler | 🌬️ Airflow | Runs the daily crawl → dbt → analytics workflow. |
+| **Query** | SQL Engine | ⚡ Trino | Provides a distributed SQL layer over the lakehouse data. |
+| **Visualization** | BI Tool | 📊 Superset | Connects to Trino for dashboarding and ad hoc analysis. |
+| **Analytics** | Reporting | 📈 DuckDB + Matplotlib | Produces local analysis charts from curated mart tables. |
 
-```text
-assets/architecture.png
-```
-
-Suggested flow:
-
-- Tiki source data -> crawler -> MinIO raw bucket
-- Airflow -> dbt staging -> dbt marts
-- Trino -> Superset for serving and visualization
-- Postgres -> metastore and Superset backend
-
-## Tech Stack
-
-| Component | Purpose |
-| --- | --- |
-| Python 3.10+ | Runtime for crawler, Airflow helpers, and analytics scripts |
-| uv | Python package and environment manager |
-| Apache Airflow 2.11.1 | Pipeline orchestration |
-| Astronomer Cosmos 1.14.1 | dbt integration inside Airflow |
-| dbt-core 1.11.8 | Transformation framework |
-| dbt-duckdb 1.10.1 | DuckDB adapter for dbt |
-| DuckDB 1.5.2 | Local analytical engine |
-| MinIO | S3-compatible object storage |
-| Postgres 15 | Metadata store and Superset backend |
-| Trino | Query layer |
-| Apache Superset | Dashboard and BI layer |
-| OpenLineage 1.46.0 | Lineage support |
-
-## Repository Structure
+## 📂 Project Structure
 
 ```text
 tiki-lakehouse-pipeline/
-├── crawler/                  # Tiki ingestion scripts
-├── dags/                     # Airflow DAGs
-├── dbt_tiki/                 # dbt project
-├── src/                      # Shared Python helpers
-├── trino/                    # Trino config and catalogs
-├── airflow_home/             # Local Airflow state
-├── docker-compose.yaml       # Local services
-├── Makefile                  # Common developer commands
-├── run_airflow.sh            # Airflow launcher
-├── run_project.sh            # End-to-end convenience script
-├── pyproject.toml            # Python project metadata
-└── uv.lock                   # Locked dependency graph
+├── airflow_home/            # Local Airflow metadata and runtime files
+├── assets/                  # Static outputs and generated analytics charts
+├── crawler/                 # Tiki ingestion scripts
+├── dags/                    # Airflow DAG definitions
+├── dbt_tiki/                # dbt project for Silver/Gold modeling
+├── logs/                    # Project-level logs
+├── preview_data/            # Local CSV previews generated by the crawler
+├── src/                     # Shared Python helpers
+├── trino/                   # Trino configuration and catalogs
+├── docker-compose.yaml      # Local infrastructure stack
+├── Makefile                 # Common developer commands
+├── run_airflow.sh           # Airflow standalone launcher
+├── run_project.sh           # End-to-end convenience script
+├── pyproject.toml           # Python project metadata and dependencies
+└── README.md                # Project documentation
 ```
 
-## Key Project Files
+## 🚀 Getting Started
 
-- `crawler/fetch_tiki.py`: collects raw product data from Tiki.
-- `dags/tiki_lakehouse_pipeline.py`: Airflow DAG for crawl -> dbt -> analytics.
-- `src/airflow_dbt.py`: reusable Cosmos helpers for dbt task groups.
-- `src/airflow_tasks.py`: lightweight task wrappers to keep DAG parsing clean.
-- `dbt_tiki/models/staging/`: staging models for the Silver layer.
-- `dbt_tiki/models/marts/`: dimension and fact models for the Gold layer.
-
-## Prerequisites
-
+### 1. Prerequisites
 - Linux or macOS
 - Python 3.10 or newer
 - Docker and Docker Compose
 - `uv` installed on the host machine
 
-Recommended system resources:
-
+Recommended local resources:
 - 8 GB RAM or more
 - At least 5 GB free disk space
 - Free ports: 8081, 8082, 8088, 9000, 9001, 5432
 
-## Local Setup
-
-### 1. Prepare environment files
+### 2. Prepare Environment
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` if you want to change credentials, ports, or local paths.
+Adjust `.env` if you want to change credentials, ports, or local paths.
 
-### 2. Create the Python environment
-
-```bash
-uv venv
-uv sync
-```
-
-### 3. Start the local services
+### 3. Install Dependencies
 
 ```bash
-docker compose up -d
+make setup
 ```
 
-Wait for MinIO, Postgres, Trino, and Superset to finish starting.
+This creates the virtual environment, installs Python dependencies, and configures pre-commit hooks.
 
-### 4. Start Airflow
+### 4. Start Infrastructure
 
 ```bash
-./run_airflow.sh
+make run
 ```
 
-The script creates the required Airflow directories, initializes the metadata database, and launches Airflow in standalone mode.
+This starts MinIO, Postgres, Trino, and Superset with Docker Compose.
 
-## Execution Steps
-
-### Option 1: Run the full flow manually
+### 5. Run the Pipeline
 
 ```bash
 make crawl
 make dbt-run
+make analytics
+```
+
+If you want the Airflow-managed version of the workflow, start standalone Airflow with:
+
+```bash
 make airflow
 ```
 
-### Option 2: Use the one-command helper
+### 6. Use Iceberg + Trino with dbt
+
+By default, dbt runs on DuckDB (`DBT_TARGET=dev`).  
+To run dbt models through Trino against the Iceberg catalog:
 
 ```bash
-./run_project.sh
+export DBT_TARGET=trino
+cd dbt_tiki
+dbt debug
+dbt run
+dbt test
 ```
 
-This helper starts the Docker stack, prepares the Python environment if needed, runs the crawler, and executes dbt.
+Quick verification in Trino:
 
-### Option 3: Run each stage separately
-
-```bash
-make crawl
-make dbt-run
-make dbt-test
-make dbt-docs
-make airflow
+```sql
+SHOW CATALOGS;
+SHOW SCHEMAS FROM iceberg;
+SHOW TABLES FROM iceberg.marts;
 ```
 
-## Data Flow
+## 🔗 Monitoring & Access
 
-1. The crawler fetches product information from Tiki and writes raw outputs to MinIO.
-2. Airflow orchestrates the daily workflow.
-3. dbt staging models clean the raw data and prepare it for modeling.
-4. dbt marts build dimension and fact tables for analytics.
-5. Trino queries the curated data, and Superset uses Trino to power dashboards.
+| Service | URL | Credentials |
+| :--- | :--- | :--- |
+| **MinIO Console** | `http://localhost:9001` | Defined in `.env.example` |
+| **MinIO API** | `http://localhost:9000` | S3-compatible endpoint |
+| **Trino UI** | `http://localhost:8082` | `admin` |
+| **Superset** | `http://localhost:8088` | Defined in `.env.example` |
+| **Airflow Webserver** | `http://localhost:8081` | Standalone local mode |
 
-## Monitoring and Access
+The exact passwords and usernames are loaded from `.env`, which can be created from `.env.example`.
 
-| Service | URL | Notes |
-| --- | --- | --- |
-| Airflow | http://localhost:8081 | Local standalone UI |
-| MinIO Console | http://localhost:9001 | Object storage browser |
-| MinIO API | http://localhost:9000 | S3-compatible endpoint |
-| Trino | http://localhost:8082 | Query engine endpoint |
-| Superset | http://localhost:8088 | BI and dashboard layer |
+## 📊 Data Pipeline Flow
 
-Default local credentials are defined in `.env.example` and can be changed in `.env`.
+1. **Bronze Layer**: `crawler/fetch_tiki.py` fetches product data from Tiki.vn, normalizes nested fields for Parquet compatibility, and uploads raw extracts to the MinIO `raw-data` bucket under `tiki_products/`.
+2. **Silver Layer**: dbt staging models in `dbt_tiki/models/staging/` read the raw Parquet files from MinIO, clean the fields, and standardize types for downstream modeling.
+3. **Gold Layer**: dbt mart models in `dbt_tiki/models/marts/` build dimensional and fact outputs as external Parquet files in the lakehouse storage layer.
+4. **Serving Layer**: Trino queries the curated data through the Iceberg catalog, with metadata backed by Postgres.
+5. **Analytics Layer**: `src/analytics_plot.py` reads curated marts through DuckDB and writes local chart outputs to `assets/analytics/`.
 
-## Airflow Orchestration
+## 🌬️ Airflow Orchestration
 
 The main DAG is `tiki_lakehouse_daily_pipeline`.
 
@@ -179,58 +164,74 @@ Typical task flow:
 - `dbt_staging`
 - `dbt_dimensions`
 - `dbt_facts`
-- `analytics`
+- `generate_analytics_report`
 
-## Makefile Reference
+The DAG is implemented in [dags/tiki_lakehouse_pipeline.py](dags/tiki_lakehouse_pipeline.py) and uses the shared Cosmos helpers from [src/airflow_dbt.py](src/airflow_dbt.py).
+
+## 🛠️ Makefile Reference
 
 | Command | Description |
-| --- | --- |
-| `make help` | Show available commands |
-| `make setup` | Create the virtual environment and install dependencies |
-| `make run` | Start the Docker services |
+| :--- | :--- |
+| `make help` | Show all available commands |
+| `make setup` | Create the virtual environment, install dependencies, and install hooks |
+| `make venv` | Create the Python virtual environment |
+| `make install` | Install dependencies from `uv.lock` |
+| `make run` | Start the Docker infrastructure stack |
 | `make stop` | Stop the Docker services |
-| `make crawl` | Run the crawler |
+| `make crawl` | Run the Tiki crawler |
 | `make dbt-run` | Run dbt transformations |
-| `make dbt-test` | Run dbt tests |
+| `make dbt-test` | Run dbt tests and validations |
 | `make dbt-docs` | Generate and serve dbt documentation |
-| `make lint` | Run code and SQL lint checks |
+| `make analytics` | Generate the local analytics chart |
+| `make lint` | Run Black, Flake8, and SQLFluff checks |
 | `make format` | Format Python and SQL files |
-| `make test` | Run Python tests |
-| `make airflow` | Start Airflow standalone |
+| `make test` | Run crawler unit tests |
+| `make airflow` | Start Airflow standalone mode |
+| `make airflow-reset` | Reset local Airflow state |
 | `make clean` | Remove local caches and generated files |
+| `make clean-docker` | Remove Docker containers and volumes |
+| `make clean-all` | Full cleanup of local artifacts and Docker state |
 
-## Image Placeholders
+## 🖼️ Screenshots Gallery
 
-Add the images you want to use in these spots:
+The sections below are ready for you to drop in real screenshots later. Replace the placeholder images with your own files when they are available.
 
-- Architecture diagram
-- Airflow DAG view
-- MinIO bucket view
-- Superset dashboard
-- Analytics chart output
+### 1. Tiki Product Listings
+<img src="assets/tiki-listings.png" width="800" alt="Tiki Listings">
 
-Suggested folder:
+### 2. Run Project Script
+<img src="assets/run-project.png" width="800" alt="Run Project">
 
-```text
-assets/
-```
+### 3. Sample Crawled Data
+<img src="assets/sample-data.png" width="800" alt="Sample Data">
 
-Suggested filenames:
+### 4. MinIO S3 Storage
+<img src="assets/minio-storage.png" width="800" alt="MinIO S3 Storage">
 
-```text
-assets/architecture.png
-assets/airflow-dag.png
-assets/minio-bucket.png
-assets/superset-dashboard.png
-assets/analytics-chart.png
-```
+### 5. Superset Connection & Dataset Setup
+<p align="center">
+	<img src="assets/superset-connect-trino.png" width="45%">
+	<img src="assets/superset-connect-dataset.png" width="45%">
+</p>
+<p align="center">
+	<img src="assets/superset-create-chart.png" width="45%">
+	<img src="assets/superset-demo-dashboard.png" width="45%">
+</p>
 
-## Notes
+### 6. Airflow DAG View
+<img src="assets/airflow-dag.png" width="800" alt="Airflow DAG">
+
+### 7. Analytics Output
+<img src="assets/analytics-chart.png" width="800" alt="Analytics Chart">
+
+## 📝 Notes
 
 - Use `uv sync` after changing dependencies in `pyproject.toml`.
-- Use `docker compose down` to stop the local stack when you are done.
-- The project is intended for local development and demonstration.
+- Use `docker compose down` or `make stop` when you are done with the local stack.
+- The marts are materialized as external Parquet outputs in the lakehouse storage layer.
+- Trino Iceberg catalog settings are in `trino/etc/catalog/iceberg.properties` (JDBC catalog on Postgres + MinIO warehouse `s3://lakehouse/`).
+- Image placeholders are intentionally left in place so you can add screenshots later without restructuring the README.
 
 ---
 
-Last updated: May 2026
+_Last updated: May 2026_

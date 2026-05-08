@@ -20,6 +20,7 @@ dependencies = [
     "astronomer-cosmos==1.14.1",
     "dbt-core==1.11.8",
     "dbt-duckdb==1.10.1",
+    "dbt-trino==1.10.0",
     "duckdb==1.5.2",
     "sqlfluff==4.1.0",
     # OpenLineage versions are pinned to the currently resolved set.

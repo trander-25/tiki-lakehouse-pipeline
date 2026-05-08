@@ -1,5 +1,5 @@
 dbt_tiki:
-  target: dev
+  target: "{{ env_var('DBT_TARGET', 'trino') }}"
   outputs:
     dev:
       type: duckdb
@@ -8,19 +8,19 @@ dbt_tiki:
         - httpfs
         - aws
       settings:
-        s3_endpoint: 'localhost:9000'
-        s3_access_key_id: 'admin'
-        s3_secret_access_key: 'password'
-        s3_region: 'us-east-1'
+        s3_endpoint: "{{ env_var('MINIO_ENDPOINT', 'http://localhost:9000') | replace('http://', '') | replace('https://', '') }}"
+        s3_access_key_id: "{{ env_var('MINIO_ACCESS_KEY', env_var('MINIO_ROOT_USER', 'admin')) }}"
+        s3_secret_access_key: "{{ env_var('MINIO_SECRET_KEY', env_var('MINIO_ROOT_PASSWORD', 'password')) }}"
+        s3_region: "{{ env_var('AWS_REGION', 'us-east-1') }}"
         s3_use_ssl: false
         s3_url_style: 'path'
     trino:
       type: trino
       method: none
-      user: admin
+      user: "{{ env_var('TRINO_USER', 'admin') }}"
       password: ""
-      host: localhost
-      port: 8080
+      host: "{{ env_var('TRINO_HOST', 'localhost') }}"
+      port: "{{ env_var('TRINO_PORT', '8082') | int }}"
       catalog: iceberg
       schema: marts
       threads: 4
