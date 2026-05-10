@@ -1,4 +1,7 @@
-{{ config(location='s3://lakehouse/dbt_marts/' ~ this.name ~ '.parquet') }}
+
+{{ config(
+    location=get_external_location('dim_sellers')
+) }}
 
 SELECT
     {{ dbt_utils.generate_surrogate_key(['seller_id']) }} AS seller_sk,

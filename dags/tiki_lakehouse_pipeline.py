@@ -28,7 +28,10 @@ os.environ.setdefault("AIRFLOW_HOME", str(PROJECT_ROOT / "airflow_home"))
 
 DBT_PROJECT_DIR = PROJECT_ROOT / "dbt_tiki"
 DBT_PROFILES_YML = DBT_PROJECT_DIR / "profiles.yml"
-DBT_TARGET = os.getenv("DBT_TARGET", "dev")
+# Staging models dùng DuckDB syntax (READ_PARQUET, STRPTIME...) nên luôn chạy với
+# target 'dev'. Chỉ marts mới cần Trino để ghi Iceberg native vào JDBC Catalog.
+DBT_TARGET_STAGING = "dev"  # DuckDB: đọc raw Parquet từ MinIO
+DBT_TARGET_MARTS = "dev"  # DuckDB: xuất Parquet ra MinIO
 DBT_EXECUTABLE_PATH = os.getenv(
     "DBT_EXECUTABLE_PATH",
     str(Path(sys.executable).with_name("dbt")),
@@ -72,7 +75,7 @@ with DAG(
         select=["path:models/staging"],
         dbt_project_dir=DBT_PROJECT_DIR,
         profiles_yml=DBT_PROFILES_YML,
-        target=DBT_TARGET,
+        target=DBT_TARGET_STAGING,  # DuckDB: READ_PARQUET syntax
         dbt_executable_path=DBT_EXECUTABLE_PATH,
     )
     marts_dir = DBT_PROJECT_DIR / "models" / "marts"
@@ -84,7 +87,7 @@ with DAG(
         select=dim_models,
         dbt_project_dir=DBT_PROJECT_DIR,
         profiles_yml=DBT_PROFILES_YML,
-        target=DBT_TARGET,
+        target=DBT_TARGET_MARTS,  # Trino: ghi Iceberg native
         dbt_executable_path=DBT_EXECUTABLE_PATH,
     )
 
@@ -93,7 +96,7 @@ with DAG(
         select=fct_models,
         dbt_project_dir=DBT_PROJECT_DIR,
         profiles_yml=DBT_PROFILES_YML,
-        target=DBT_TARGET,
+        target=DBT_TARGET_MARTS,  # Trino: ghi Iceberg native
         dbt_executable_path=DBT_EXECUTABLE_PATH,
     )
 

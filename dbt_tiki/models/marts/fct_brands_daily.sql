@@ -1,4 +1,7 @@
-{{ config(location='s3://lakehouse/dbt_marts/' ~ this.name ~ '.parquet') }}
+
+{{ config(
+    location=get_external_location('fct_brands_daily')
+) }}
 
 WITH base AS (
     SELECT

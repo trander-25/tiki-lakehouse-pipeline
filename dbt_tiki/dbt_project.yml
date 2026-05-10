@@ -1,16 +1,8 @@
-
-# Name your project! Project names should contain only lowercase characters
-# and underscores. A good package name should reflect your organization's
-# name or the intended use of these models
 name: 'dbt_tiki'
 version: '1.0.0'
 
-# This setting configures which "profile" dbt uses for this project.
 profile: 'dbt_tiki'
 
-# These configurations specify where dbt should look for different types of files.
-# The `model-paths` config, for example, states that models in this project can be
-# found in the "models/" directory. You probably won't need to change these!
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
@@ -18,22 +10,19 @@ seed-paths: ["seeds"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
 
-clean-targets:         # directories to be removed by `dbt clean`
+clean-targets:
   - "target"
   - "dbt_packages"
 
-
-# Configuring models
-# Full documentation: https://docs.getdbt.com/docs/configuring-models
-
-# In this example config, we tell dbt to build all models in the example/
-# directory as views. These settings can be overridden in the individual model
-# files using the `{{ config(...) }}` macro.
 models:
   dbt_tiki:
     staging:
       +materialized: view
     marts:
-      +materialized: external
-      +location: "s3://lakehouse/marts/"
-      +format: "parquet"
+      # Khi target=trino: Trino tự tạo Iceberg table và đăng ký vào JDBC Catalog.
+      # Location mặc định là s3://lakehouse/<schema>/<table> theo warehouse-dir trong iceberg.properties.
+      # Khi target=dev (DuckDB): sử dụng materialized=external tại s3://lakehouse/marts/
+      +materialized: "{{ 'table' if target.name == 'trino' else 'external' }}"
+      +format: "{{ 'parquet' if target.name != 'trino' else none }}"
+      +properties:
+        format: "'PARQUET'"
