@@ -1,14 +1,8 @@
--- 1. Tạo database metastore nếu chưa tồn tại
--- Lưu ý: Postgres mặc định không hỗ trợ CREATE DATABASE IF NOT EXISTS trực tiếp trong script đơn giản, 
--- nên ta dùng khối lệnh DO để kiểm tra.
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT FROM pg_database WHERE datname = 'metastore') THEN
-        PERFORM dblink_exec('dbname=' || current_database(), 'CREATE DATABASE metastore');
-    END IF;
-END $$;
+-- 1. Database 'metastore' được tạo tự động bởi docker-entrypoint
+--    thông qua biến môi trường POSTGRES_DB=metastore.
+--    Không cần CREATE DATABASE thủ công.
 
--- 2. Kết nối vào database metastore để phân quyền
+-- 2. Kết nối vào database metastore
 \c metastore;
 
 -- 3. Cấp quyền cho user admin trên schema public (Dành cho Postgres 15+)

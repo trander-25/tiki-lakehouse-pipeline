@@ -1,4 +1,7 @@
-{{ config(materialized='view') }}
+
+{{ config(
+    location=get_external_location('fct_books')
+) }}
 
 WITH src AS (
     SELECT

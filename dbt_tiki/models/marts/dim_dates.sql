@@ -1,4 +1,7 @@
-{{ config(location='s3://lakehouse/dbt_marts/' ~ this.name ~ '.parquet') }}
+
+{{ config(
+    location=get_external_location('dim_dates')
+) }}
 
 WITH dates AS (
     SELECT DISTINCT extracted_date AS date_day

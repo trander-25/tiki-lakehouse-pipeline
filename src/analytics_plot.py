@@ -30,8 +30,8 @@ def main():
         SELECT 
             p.product_name, 
             MAX(f.quantity_sold) as quantity_sold 
-        FROM read_parquet('s3://lakehouse/dbt_marts/fct_product_snapshots.parquet') AS f
-        JOIN read_parquet('s3://lakehouse/dbt_marts/dim_products.parquet') AS p 
+        FROM read_parquet('s3://lakehouse/marts/fct_product_snapshots.parquet') AS f
+        JOIN read_parquet('s3://lakehouse/marts/dim_products.parquet') AS p 
             ON f.product_sk = p.product_sk
         WHERE f.quantity_sold IS NOT NULL
         GROUP BY p.product_name
