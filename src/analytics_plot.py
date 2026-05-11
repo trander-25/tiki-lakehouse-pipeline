@@ -61,8 +61,7 @@ def main():
                      f'{int(width):,}', ha='left', va='center')
         
         plt.tight_layout()
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        output_path = f'{output_dir}/top_10_books_{timestamp}.png'
+        output_path = f'{output_dir}/top_10_books.png'
         plt.savefig(output_path, dpi=300)
         print(f"Successfully saved chart to: {output_path}")
     else:

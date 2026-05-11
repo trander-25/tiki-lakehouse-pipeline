@@ -33,7 +33,7 @@ services:
       - lakehouse_net
     restart: "no"
 
-  # 2. POSTGRES - Metastore & Superset Backend
+  # 2. POSTGRES - Superset Backend
   postgres:
     image: postgres:15
     container_name: tiki_postgres
@@ -50,21 +50,6 @@ services:
       - lakehouse_net
     restart: "no"
 
-  # 3. TRINO - Distributed Query Engine
-  trino:
-    image: trinodb/trino:latest
-    container_name: tiki_trino
-    ports:
-      - "8082:8080"
-    volumes:
-      - ./trino/etc:/etc/trino
-      - trino_metastore:/var/lib/trino/metastore
-    networks:
-      - lakehouse_net
-    restart: "no"
-    depends_on:
-      - minio
-      - postgres
 
   # 4. SUPERSET - Visualization (BI)
   superset:
@@ -83,7 +68,7 @@ services:
     # Initialize the database and admin user
     entrypoint: >
       /bin/sh -c "
-      pip install trino &&
+      pip install --no-cache-dir 'duckdb-engine' 'duckdb' 'sqlalchemy<2.0' &&
       superset db upgrade &&
       superset fab create-admin --username ${SUPERSET_ADMIN_USER} --firstname Superset --lastname Admin --email admin@lakehouse.local --password ${SUPERSET_ADMIN_PASSWORD} &&
       superset init &&
@@ -91,7 +76,6 @@ services:
       "
     depends_on:
       - postgres
-      - trino
 
 networks:
   lakehouse_net:
@@ -100,4 +84,3 @@ networks:
 volumes:
   minio_data:
   pg_data:
-  trino_metastore:

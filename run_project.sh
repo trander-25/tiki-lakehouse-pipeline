@@ -37,6 +37,5 @@ make dbt-run
 echo "✅ Project is up and running!"
 echo "------------------------------------------------"
 echo "🔗 MinIO Console: http://localhost:9001 (admin / minio_password)"
-echo "🔗 Trino UI: http://localhost:8080 (admin)"
 echo "🔗 Superset: http://localhost:8088 (admin / admin_password)"
 echo "------------------------------------------------"

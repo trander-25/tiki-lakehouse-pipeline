@@ -67,7 +67,6 @@ run: docker-check
 	@echo ""
 	@echo "Service endpoints:"
 	@echo "  - MinIO Console:  http://localhost:9001 (admin / password)"
-	@echo "  - Trino UI:       http://localhost:8082 (admin)"
 	@echo "  - Superset:       http://localhost:8088 (admin / password)"
 	@echo "  - Postgres:       localhost:5432"
 	@echo ""

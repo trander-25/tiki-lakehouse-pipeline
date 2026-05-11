@@ -1,5 +1,5 @@
 dbt_tiki:
-  target: "{{ env_var('DBT_TARGET', 'trino') }}"
+  target: dev
   outputs:
     dev:
       type: duckdb
@@ -14,13 +14,3 @@ dbt_tiki:
         s3_region: "{{ env_var('AWS_REGION', 'us-east-1') }}"
         s3_use_ssl: false
         s3_url_style: 'path'
-    trino:
-      type: trino
-      method: none
-      user: "{{ env_var('TRINO_USER', 'admin') }}"
-      password: ""
-      host: "{{ env_var('TRINO_HOST', 'localhost') }}"
-      port: "{{ env_var('TRINO_PORT', '8082') | int }}"
-      catalog: iceberg
-      schema: marts
-      threads: 4

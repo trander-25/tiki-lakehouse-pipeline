@@ -19,10 +19,5 @@ models:
     staging:
       +materialized: view
     marts:
-      # Khi target=trino: Trino tự tạo Iceberg table và đăng ký vào JDBC Catalog.
-      # Location mặc định là s3://lakehouse/<schema>/<table> theo warehouse-dir trong iceberg.properties.
-      # Khi target=dev (DuckDB): sử dụng materialized=external tại s3://lakehouse/marts/
-      +materialized: "{{ 'table' if target.name == 'trino' else 'external' }}"
-      +format: "{{ 'parquet' if target.name != 'trino' else none }}"
-      +properties:
-        format: "'PARQUET'"
+      +materialized: external
+      +format: parquet
