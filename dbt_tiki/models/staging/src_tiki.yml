@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: tiki_raw
+    database: hive
+    schema: tiki_raw
+    tables:
+      - name: products_preview
+        description: Raw products parquet files crawled from Tiki and stored in MinIO.

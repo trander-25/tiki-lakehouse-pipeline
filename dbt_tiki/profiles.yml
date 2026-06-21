@@ -1,16 +1,24 @@
 dbt_tiki:
-  target: dev
+  target: "{{ env_var('DBT_TARGET', 'local') }}"
+
   outputs:
     dev:
-      type: duckdb
-      path: 'tiki.duckdb'
-      extensions:
-        - httpfs
-        - aws
-      settings:
-        s3_endpoint: "{{ env_var('MINIO_ENDPOINT', 'http://localhost:9000') | replace('http://', '') | replace('https://', '') }}"
-        s3_access_key_id: "{{ env_var('MINIO_ACCESS_KEY', env_var('MINIO_ROOT_USER', 'admin')) }}"
-        s3_secret_access_key: "{{ env_var('MINIO_SECRET_KEY', env_var('MINIO_ROOT_PASSWORD', 'password')) }}"
-        s3_region: "{{ env_var('AWS_REGION', 'us-east-1') }}"
-        s3_use_ssl: false
-        s3_url_style: 'path'
+      type: trino
+      method: none
+      user: trino
+      host: trino
+      port: 8080
+      database: iceberg
+      schema: bronze
+      threads: 4
+      http_scheme: http
+    local:
+      type: trino
+      method: none
+      user: trino
+      host: localhost
+      port: 8080
+      database: iceberg
+      schema: bronze
+      threads: 4
+      http_scheme: http

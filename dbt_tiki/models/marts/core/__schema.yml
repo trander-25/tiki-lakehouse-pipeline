@@ -1,0 +1,85 @@
+version: 2
+
+models:
+  - name: dim_products
+    description: Dimension table for products (latest metadata per product).
+    columns:
+      - name: product_id
+        description: Unique identifier of the product.
+        data_tests:
+          - not_null
+          - unique
+      - name: product_sku
+        description: SKU of the product.
+      - name: product_name
+        description: Name of the product.
+      - name: url_path
+        description: Relative URL path of the product.
+      - name: thumbnail_url
+        description: Thumbnail URL.
+
+  - name: dim_categories
+    description: Dimension table for product categories.
+    columns:
+      - name: category_key
+        description: MD5 hash of the category hierarchy.
+        data_tests:
+          - not_null
+          - unique
+      - name: category_l1
+        description: Level 1 category name.
+      - name: category_l2
+        description: Level 2 category name.
+      - name: category_l3
+        description: Level 3 category name.
+      - name: primary_category_name
+        description: Primary category name.
+
+  - name: dim_sellers
+    description: Dimension table for sellers.
+    columns:
+      - name: seller_id
+        description: Unique identifier of the seller.
+        data_tests:
+          - not_null
+          - unique
+      - name: seller_type
+        description: Type of the seller (e.g. OFFICIAL_STORE).
+
+  - name: fct_product_snapshots
+    description: Fact table containing snapshots of product metrics over time.
+    columns:
+      - name: extracted_at
+        description: Snapshot timestamp.
+        data_tests:
+          - not_null
+      - name: extracted_date
+        description: Snapshot date (used as partition key).
+      - name: product_id
+        description: Foreign key to dim_products.
+        data_tests:
+          - not_null
+      - name: seller_id
+        description: Foreign key to dim_sellers.
+      - name: category_key
+        description: Foreign key to dim_categories.
+      - name: current_price
+        description: Current price of the product at snapshot time.
+      - name: list_price
+        description: List price.
+      - name: discount
+        description: Discount amount.
+      - name: discount_rate
+        description: Discount rate.
+      - name: original_price
+        description: Original price.
+      - name: rating_average
+        description: Average customer rating.
+      - name: review_count
+        description: Number of reviews.
+      - name: order_count
+        description: Number of orders.
+      - name: favourite_count
+        description: Number of times favorited.
+      - name: quantity_sold_count
+        description: Number of units sold.
