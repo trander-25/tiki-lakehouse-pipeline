@@ -200,7 +200,3 @@ To connect Superset to Trino, use the following connection details:
 - Use `uv sync` after changing dependencies in `pyproject.toml`.
 - Use `docker compose down` or `make stop` when you are done with the local stack.
 - The marts are materialized as Iceberg tables in the lakehouse storage layer.
-
----
-
-_Last updated: June 21, 2026_
