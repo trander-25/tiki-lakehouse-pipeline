@@ -38,6 +38,10 @@ uv run python src/setup_raw_table.py
 echo "🔨 Running dbt transformations..."
 make dbt-run
 
+# 7. Generate local analytics report
+echo "📈 Generating local analytics report..."
+make analytics
+
 echo "✅ Project is up and running!"
 echo "------------------------------------------------"
 echo "🔗 MinIO Console: http://localhost:9001 (admin / minio_password)"
