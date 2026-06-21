@@ -1,13 +1,14 @@
 version: 2
 
 models:
-  - name: stg_tiki__products
-    description: Staged and cleaned product records crawled from Tiki.
+  - name: int_tiki__latest_products
+    description: Deduplicated latest record per product from stg_tiki__products.
     columns:
       - name: product_id
         description: Unique identifier of the product.
         data_tests:
           - not_null
+          - unique
       - name: product_sku
         description: SKU of the product.
       - name: product_name
@@ -37,7 +38,7 @@ models:
       - name: seller_id
         description: Identifier of the seller.
       - name: quantity_sold_count
-        description: Quantity sold count parsed from quantity_sold JSON.
+        description: Quantity sold count.
       - name: category_l1
         description: Level 1 category.
       - name: category_l2

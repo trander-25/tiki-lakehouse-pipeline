@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: gold_category_performance
+    description: Gold business metrics reporting performance and metrics per product category.
+    columns:
+      - name: extracted_date
+        description: Date of the snapshots.
+      - name: parent_category
+        description: Level 1 category.
+      - name: sub_category
+        description: Level 2 category.
+      - name: total_products
+        description: Count of unique products in the category on the date.
+      - name: avg_price
+        description: Average price of the products.
+      - name: total_units_sold
+        description: Total quantity sold.
+      - name: avg_rating
+        description: Average customer rating.
+
+  - name: gold_seller_insights
+    description: Gold business metrics analyzing seller behavior, pricing, and volume.
+    columns:
+      - name: extracted_date
+        description: Date of the snapshots.
+      - name: seller_id
+        description: Unique identifier of the seller.
+      - name: seller_type
+        description: Type/status of the seller.
+      - name: active_sku_count
+        description: Number of active SKUs sold by this seller on this date.
+      - name: avg_discount_rate
+        description: Average discount rate offered by the seller.
+      - name: total_products_sold
+        description: Total quantity sold.

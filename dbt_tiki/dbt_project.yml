@@ -18,6 +18,11 @@ models:
   dbt_tiki:
     staging:
       +materialized: view
+      +schema: bronze
+    intermediate:
+      +materialized: view
+      +schema: silver
     marts:
-      +materialized: external
-      +format: parquet
+      +materialized: table
+      +schema: gold
+      +on_table_exists: drop

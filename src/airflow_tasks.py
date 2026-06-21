@@ -12,7 +12,7 @@ def run_analytics_report() -> None:
 
     Notes:
         - Imports are intentionally inside the function to avoid importing
-          heavy plotting dependencies (duckdb/matplotlib/seaborn) during DAG parsing.
+          heavy plotting dependencies (trino/matplotlib/seaborn) during DAG parsing.
     """
 
     from src.analytics_plot import main as analytics_main

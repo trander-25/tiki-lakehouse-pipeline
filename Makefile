@@ -70,8 +70,8 @@ run: docker-check
 	@echo "  - Superset:       http://localhost:8088 (admin / password)"
 	@echo "  - Postgres:       localhost:5432"
 	@echo ""
-	@echo "Waiting for services to initialize... (30 seconds)"
-	@sleep 30
+	@echo "Waiting for services to initialize... (15 seconds)"
+	@sleep 15
 	@echo "✓ All services ready!"
 
 # Stop Docker services gracefully

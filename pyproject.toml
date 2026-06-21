@@ -19,8 +19,8 @@ dependencies = [
     "apache-airflow==2.11.1",
     "astronomer-cosmos==1.14.1",
     "dbt-core==1.11.8",
-    "dbt-duckdb==1.10.1",
-    "duckdb==1.5.2",
+    "dbt-trino==1.10.0",
+    "trino==0.337.0",
     "sqlfluff==4.1.0",
     # OpenLineage versions are pinned to the currently resolved set.
     "openlineage-integration-common==1.46.0",
@@ -29,7 +29,6 @@ dependencies = [
     # Analytics/plotting
     "matplotlib==3.10.9",
     "seaborn==0.13.2",
-    "duckdb-engine>=0.17.0",
 ]
 
 [project.optional-dependencies]

@@ -23,5 +23,5 @@ repos:
     rev: 2.3.2
     hooks:
       - id: sqlfluff-lint
-        args: ["--dialect", "duckdb"]
+        args: ["--dialect", "trino"]
         files: ^dbt_tiki/models/.*\.sql$

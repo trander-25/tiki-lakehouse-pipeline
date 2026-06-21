@@ -13,10 +13,10 @@ fi
 
 # 2. Start Infrastructure
 echo "🐳 Starting Docker containers..."
-make up
+make run
 
 # 3. Wait for services to be ready
-echo "⏳ Waiting for services to initialize (30s)...)"
+echo "⏳ Waiting for services to initialize (30s)..."
 # We wait a bit to ensure MinIO and Postgres are up before crawling
 sleep 30
 
@@ -29,6 +29,10 @@ fi
 # 5. Run Crawler
 echo "🕷️  Running Tiki Crawler..."
 make crawl
+
+# 5.5 Setup Raw Table Schema in Trino
+echo "🗃️  Setting up raw table schema in Trino..."
+uv run python src/setup_raw_table.py
 
 # 6. Run dbt transformations
 echo "🔨 Running dbt transformations..."

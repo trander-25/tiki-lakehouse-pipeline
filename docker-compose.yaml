@@ -45,10 +45,32 @@ services:
       - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
+      - ./postgres:/docker-entrypoint-initdb.d
     networks:
       - lakehouse_net
     restart: "no"
 
+  # 3. TRINO - Distributed Query Engine
+  trino:
+    image: trinodb/trino:latest
+    container_name: tiki_trino
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./trino/etc:/etc/trino
+      - trino_metastore:/var/lib/trino/metastore
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+    networks:
+      - lakehouse_net
+    restart: "no"
+    depends_on:
+      - minio
+      - postgres
 
   # 4. SUPERSET - Visualization (BI)
   superset:
@@ -67,7 +89,7 @@ services:
     # Initialize the database and admin user
     entrypoint: >
       /bin/sh -c "
-      pip install --no-cache-dir 'duckdb-engine' 'duckdb' 'sqlalchemy<2.0' &&
+      pip install --no-cache-dir 'trino' 'sqlalchemy-trino' 'sqlalchemy<2.0' &&
       superset db upgrade &&
       superset fab create-admin --username ${SUPERSET_ADMIN_USER} --firstname Superset --lastname Admin --email admin@lakehouse.local --password ${SUPERSET_ADMIN_PASSWORD} &&
       superset init &&
@@ -83,3 +105,4 @@ networks:
 volumes:
   minio_data:
   pg_data:
+  trino_metastore:
