@@ -67,6 +67,8 @@ def fetch_tiki_products(
     Returns:
         list: A list of product data dictionaries.
     """
+    print(f"[FETCH] Starting extraction phase for category ID: {category_id}...")
+    print(f"[FETCH] Target pages: {num_pages}, limit per page: {limit} products.")
     session = build_session()
     products = []
 
@@ -81,30 +83,40 @@ def fetch_tiki_products(
             "category": category_id,
             "page": page,
         }
-        print(f"Page {page}: Fetching data from Tiki...")
+        print(f"[FETCH] Page {page}/{num_pages}: Requesting listings from Tiki API...")
 
         try:
             response = session.get(url, params=params, timeout=TIKI_TIMEOUT_SECONDS)
             if response.status_code != 200:
-                print(f"Non-200 status code received for page {page}: {response.status_code}")
+                print(
+                    f"[FETCH] [ERROR] Page {page} failed with HTTP status code: {response.status_code}"
+                )
                 break
 
             raw_json = response.json()
             data = raw_json.get("data", [])
             if not data:
-                print(f"No more products found on page {page}. Stopping.")
+                print(f"[FETCH] [INFO] Page {page} returned empty product list. Stopping fetch.")
                 break
 
             products.extend(data)
-            print(f"Page {page}: Fetched {len(data)} products")
+            print(
+                f"[FETCH] Page {page}: Successfully fetched {len(data)} products (Cumulative raw count: {len(products)})"
+            )
 
         except requests.exceptions.RequestException as e:
-            print(f"Page {page}: Request failed: {e}")
+            print(f"[FETCH] [ERROR] Page {page}: Connection or request failed: {e}")
             break
 
         # Sleep to avoid hitting rate limits
         time.sleep(1)
 
+    unique_ids = len(
+        set(p.get("id") for p in products if isinstance(p, dict) and p.get("id") is not None)
+    )
+    print(
+        f"[FETCH] Extraction phase complete. Crawled {len(products)} raw items. Unique products (by ID): {unique_ids}."
+    )
     return products
 
 
@@ -114,10 +126,20 @@ def save_to_minio(data):
         data (list): A list of product data dictionaries to save.
     """
     if not data:
-        print("No data to save.")
+        print("[SAVE] [WARNING] No data received to save.")
         return
 
+    print(f"[SAVE] Initializing data processing and storage stage...")
     df = pd.DataFrame(data)
+
+    # Deduplicate by product ID ('id') to avoid duplicates from page pagination
+    if "id" in df.columns:
+        initial_len = len(df)
+        df = df.drop_duplicates(subset=["id"], keep="first")
+        print(
+            f"[SAVE] Deduplication: removed {initial_len - len(df)} duplicates. "
+            f"Kept {len(df)} unique products (unique 'id')."
+        )
 
     now = datetime.now()
     year = now.strftime("%Y")
@@ -132,6 +154,10 @@ def save_to_minio(data):
     df["day"] = day
     df["extracted_at"] = timestamp_str
 
+    print(
+        f"[SAVE] Prepared schema with partition path: {partition_path} and timestamp: {timestamp_str}"
+    )
+
     # Convert any columns with dict or list data to string to ensure Parquet compatibility
     for col in df.columns:
         if df[col].apply(lambda x: isinstance(x, (dict, list))).any():
@@ -142,14 +168,16 @@ def save_to_minio(data):
     os.makedirs(preview_dir, exist_ok=True)
     preview_path = os.path.join(preview_dir, f"tiki_products_preview_{timestamp_str}.csv")
     df.to_csv(preview_path, index=False)
-    print(f"1. Preview data saved to {preview_path}")
+    print(f"[SAVE] 1. Preview CSV successfully saved locally to: {preview_path}")
 
     # Convert DataFrame to Parquet format in memory
+    print(f"[SAVE] 2. Serializing Pandas DataFrame to Parquet format in memory...")
     parquet_buffer = BytesIO()
     df.to_parquet(parquet_buffer, index=False)
-    print(f"2. Data converted to Parquet format in memory.")
+    print(f"[SAVE] Parquet serialization complete (size: {parquet_buffer.tell()} bytes).")
 
     # Initialize MinIO client and upload the Parquet file
+    print(f"[SAVE] 3. Connecting to MinIO endpoint: {MINIO_ENDPOINT}...")
     s3_client = boto3.client(
         "s3",
         endpoint_url=MINIO_ENDPOINT,
@@ -158,16 +186,37 @@ def save_to_minio(data):
     )
 
     file_key = f"tiki_products/{partition_path}/books_{timestamp_str}.parquet"
-    print(f"3. Uploading data to MinIO bucket '{MINIO_BUCKET_NAME}' with key '{file_key}'...")
+    print(
+        f"[SAVE] 4. Uploading Parquet object to bucket '{MINIO_BUCKET_NAME}' with key '{file_key}'..."
+    )
 
     s3_client.put_object(Bucket=MINIO_BUCKET_NAME, Key=file_key, Body=parquet_buffer.getvalue())
-    print(f"4. Data successfully uploaded to MinIO at '{file_key}'.")
+    print(f"[SAVE] 5. Successfully uploaded to MinIO: s3://{MINIO_BUCKET_NAME}/{file_key}")
 
 
 if __name__ == "__main__":
-    # Fetch products from Tiki and save to MinIO
-    products = fetch_tiki_products(num_pages=10)
-    print(f"Total products fetched: {len(products)}")
-    print("Saving fetched products to MinIO...")
+    print("==================================================")
+    print("🚀 TIKI LAKEHOUSE INGESTION PIPELINE: START")
+    print("==================================================")
+
+    # Fetch products from Tiki
+    products = fetch_tiki_products(num_pages=40)
+
+    total_fetched = len(products)
+    unique_ids_count = len(
+        set(p.get("id") for p in products if isinstance(p, dict) and p.get("id") is not None)
+    )
+
+    print("\n--------------------------------------------------")
+    print("📊 EXTRACTION SUMMARY")
+    print(f"  - Total records crawled (raw): {total_fetched}")
+    print(f"  - Actual unique product IDs:    {unique_ids_count}")
+    print("--------------------------------------------------\n")
+
+    print("Saving fetched products to MinIO (Bronze Layer)...")
     # Save the fetched products to MinIO
     save_to_minio(products)
+
+    print("==================================================")
+    print("✅ TIKI LAKEHOUSE INGESTION PIPELINE: SUCCESS")
+    print("==================================================")
