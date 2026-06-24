@@ -19,9 +19,10 @@ max_extracted as (
 ),
 
 raw_source as (
-    -- Load ONLY the latest file of the latest partition
+    -- Load ONLY the latest file of the latest partition, unless backfill is enabled
     select p.*
     from {{ source('tiki_raw', 'products_preview') }} p
+    {% if not var('backfill', false) %}
     join max_partition m
         on
             p.year = m.max_yr
@@ -29,6 +30,7 @@ raw_source as (
             and p.day = m.max_dy
     join max_extracted e
         on p.extracted_at = e.max_val
+    {% endif %}
 ),
 
 renamed_and_parsed as (
@@ -48,6 +50,28 @@ renamed_and_parsed as (
         url_path,
         thumbnail_url,
         seller_id,
+        seller as seller_name,
+        book_cover,
+
+        -- Extract brand or author/publisher for books
+        coalesce(
+            nullif(brand_name, ''),
+            try(
+                json_extract_scalar(
+                    element_at(
+                        filter(
+                            cast(json_parse(
+                                replace(replace(replace(replace(badges_new, '''', '"'), 'True', 'true'), 'False', 'false'), 'None', 'null')
+                            ) as array(json)),
+                            x -> json_extract_scalar(x, '$.code') = 'brand_name'
+                        ),
+                        1
+                    ),
+                    '$.text'
+                )
+            )
+        ) as brand_name,
+
 
         -- Parse quantity sold from string like {'text': 'Đã bán 221', 'value': 221}
         cast(json_extract_scalar(json_parse(

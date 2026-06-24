@@ -1,4 +1,4 @@
-.PHONY: help setup setup-hooks venv install run stop clean crawl dbt-run dbt-test dbt-docs lint format test airflow clean-all
+.PHONY: help setup setup-hooks venv install run stop clean crawl dbt-run dbt-test dbt-docs lint format test airflow clean-all fake-data sync-raw dbt-backfill clean-history
 
 # Default target: show help
 help:
@@ -18,7 +18,10 @@ help:
 	@echo ""
 	@echo "Data Pipeline:"
 	@echo "  make crawl           - Run Tiki data crawler (ingestion)"
+	@echo "  make fake-data       - Generate simulated historical data in MinIO"
+	@echo "  make sync-raw        - Re-create raw Hive table & discover partitions"
 	@echo "  make dbt-run         - Execute dbt transformations (staging → marts)"
+	@echo "  make dbt-backfill    - Run dbt with full refresh and backfill history"
 	@echo "  make dbt-test        - Run dbt tests and validations"
 	@echo "  make dbt-docs        - Generate and serve dbt documentation"
 	@echo "  make analytics       - Generate analytics reports"
@@ -34,6 +37,7 @@ help:
 	@echo ""
 	@echo "Cleanup:"
 	@echo "  make clean           - Remove venv, logs, cache, build artifacts"
+	@echo "  make clean-history   - Delete simulated historical parquet and CSV files"
 	@echo "  make clean-all       - Full reset: remove venv, Docker, logs, artifacts"
 	@echo ""
 
@@ -119,6 +123,24 @@ analytics:
 	uv run python src/analytics_plot.py
 	@echo "✓ Analytics reports generated"
 
+# Generate fake history data (3 months backfill template)
+fake-data:
+	@echo "Generating fake history data..."
+	uv run python src/generate_fake_history.py
+	@echo "✓ Fake history data generated"
+
+# Re-create raw table & sync partitions
+sync-raw:
+	@echo "Syncing raw table schema and partitions..."
+	uv run python src/setup_raw_table.py
+	@echo "✓ Raw table synced successfully"
+
+# Run dbt backfill on historical data
+dbt-backfill:
+	@echo "Running dbt full-refresh backfill..."
+	cd dbt_tiki && uv run dbt run --full-refresh --vars 'backfill: true'
+	@echo "✓ dbt backfill completed"
+
 # Code formatting (black)
 format:
 	@echo "Formatting Python code..."
@@ -173,6 +195,13 @@ clean:
 # Full clean: Remove Docker, venv, and all generated files (WARNING: data loss)
 clean-all: clean clean-docker
 	@echo "✓ Full cleanup completed"
+
+# Clean only fake history data from MinIO and local preview
+clean-history:
+	@echo "Cleaning simulated historical data..."
+	uv run python src/clean_history.py
+	@echo "✓ Historical data cleaned"
+
 
 # Remove Docker containers and volumes
 clean-docker:

@@ -17,6 +17,10 @@ models:
         description: Relative URL path of the product.
       - name: thumbnail_url
         description: Thumbnail URL.
+      - name: brand_name
+        description: Brand or Author/Publisher name extracted from badges or metadata.
+      - name: book_cover
+        description: Book cover format (e.g., Paperback, Hardcover).
 
   - name: dim_categories
     description: Dimension table for product categories.
@@ -45,28 +49,61 @@ models:
           - unique
       - name: seller_type
         description: Type of the seller (e.g. OFFICIAL_STORE).
+      - name: seller_name
+        description: Display name of the seller.
+
+  - name: dim_dates
+    description: Dimension table for dates (Calendar/Time Intelligence).
+    columns:
+      - name: date_key
+        description: Date key (primary key).
+        data_tests:
+          - not_null
+          - unique
+      - name: date_value
+        description: Date value (date type).
+      - name: year
+        description: Calendar year.
+      - name: month
+        description: Month number (1-12).
+      - name: day
+        description: Day of the month (1-31).
+      - name: quarter
+        description: Quarter number (1-4).
+      - name: day_of_week_num
+        description: Day of the week number (1-7).
+      - name: day_name
+        description: Full name of the day (e.g. Monday).
+      - name: month_name
+        description: Full name of the month (e.g. June).
 
   - name: fct_product_snapshots
-    description: Fact table containing snapshots of product metrics over time.
+    description: Fact table containing daily snapshots of product metrics, prices, and computed daily volumes/GMV.
     columns:
       - name: extracted_at
         description: Snapshot timestamp.
         data_tests:
           - not_null
-      - name: extracted_date
-        description: Snapshot date (used as partition key).
+      - name: date_key
+        description: Snapshot date (used as partition key and foreign key to dim_dates).
+        data_tests:
+          - not_null
       - name: product_id
         description: Foreign key to dim_products.
         data_tests:
           - not_null
       - name: seller_id
         description: Foreign key to dim_sellers.
+        data_tests:
+          - not_null
       - name: category_key
         description: Foreign key to dim_categories.
+        data_tests:
+          - not_null
       - name: current_price
         description: Current price of the product at snapshot time.
       - name: list_price
-        description: List price.
+        description: Original list price.
       - name: discount
         description: Discount amount.
       - name: discount_rate
@@ -81,5 +118,11 @@ models:
         description: Number of orders.
       - name: favourite_count
         description: Number of times favorited.
-      - name: quantity_sold_count
-        description: Number of units sold.
+      - name: cumulative_quantity_sold
+        description: All-time cumulative quantity sold reported by Tiki.
+      - name: daily_quantity_sold
+        description: Estimated quantity sold on the day of the snapshot (calculated as incremental diff).
+      - name: daily_gmv
+        description: Estimated Gross Merchandise Value (GMV) for the day of the snapshot (daily_quantity_sold * current_price).
+      - name: is_discounted
+        description: Flag indicating if the product was discounted at snapshot time.

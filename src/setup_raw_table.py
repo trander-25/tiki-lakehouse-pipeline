@@ -9,7 +9,16 @@ load_dotenv()
 
 
 def map_pyarrow_type_to_trino(name, pa_type):
-    # Map pyarrow types to Trino SQL types
+    # Force text, identifier, and JSON columns to VARCHAR
+    varchar_cols = {
+        "id", "sku", "seller", "brand_name", "badges_new", 
+        "visible_impression_info", "quantity_sold", "url_path", 
+        "thumbnail_url", "book_cover"
+    }
+    if name.lower() in varchar_cols:
+        return "VARCHAR"
+        
+    # Map other pyarrow types to Trino SQL types
     type_str = str(pa_type)
     if "int" in type_str:
         return "BIGINT"
@@ -18,7 +27,6 @@ def map_pyarrow_type_to_trino(name, pa_type):
     elif "bool" in type_str:
         return "BOOLEAN"
     else:
-        # strings, nulls, and other types map to VARCHAR
         return "VARCHAR"
 
 
