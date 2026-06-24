@@ -46,3 +46,6 @@ preview_data/
 
 # Logs
 logs/
+
+# csv
+tmp_csv/
