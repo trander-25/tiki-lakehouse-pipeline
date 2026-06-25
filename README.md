@@ -7,6 +7,7 @@
   [![Trino](https://img.shields.io/badge/Trino-Query_Engine-DD0000?logo=trino&logoColor=white)]()
   [![MinIO](https://img.shields.io/badge/MinIO-S3_Storage-C7202C?logo=minio&logoColor=white)]()
   [![Airflow](https://img.shields.io/badge/Airflow-Orchestration-017CEE?logo=apache-airflow&logoColor=white)]()
+  [![Power BI](https://img.shields.io/badge/Power_BI-Visualization-F2C811?logo=powerbi&logoColor=black)]()
 </div>
 
 
@@ -14,14 +15,14 @@
 
 ## 📖 Project Overview
 
-This project implements a local **lakehouse-style modern data stack** that simulates an end-to-end e-commerce analytics workflow for Tiki.vn. It crawls product data, stores raw extracts in MinIO, transforms them with dbt and Trino/Iceberg, orchestrates the daily flow with Airflow, and serves curated data through Superset.
+This project implements a local **lakehouse-style modern data stack** that simulates an end-to-end e-commerce analytics workflow for Tiki.vn. It crawls product data, stores raw extracts in MinIO, transforms them with dbt and Trino/Iceberg, orchestrates the daily flow with Airflow, and serves curated data through Power BI.
 
 ### Key Features
 - **Automated Ingestion**: A custom crawler fetches Tiki product data from the public API and writes raw Parquet files to MinIO.
-- **Medallion-Style Modeling**: dbt builds a clear Bronze → Silver → Gold flow with staging, intermediate, and mart models.
+- **Medallion-Style Modeling**: dbt builds a clear Bronze → Silver → Gold flow with staging, intermediate, and mart models (star-schema optimized for Power BI).
 - **Lakehouse Storage**: Apache Iceberg tables backed by MinIO S3-compatible object storage and tracked via a JDBC catalog on PostgreSQL.
 - **Orchestration**: Airflow runs the daily pipeline from ingestion to analytics.
-- **Visualization**: Apache Superset is used for interactive dashboards and exploration.
+- **Visualization**: Power BI is used for interactive dashboarding and advanced business intelligence. Apache Superset remains supported in the local container setup.
 - **Analytics Output**: A Trino-based script generates a top-selling-books chart in the local assets folder.
 - **Developer Friendly**: `uv`, `Makefile` targets, and Docker Compose keep the workflow reproducible on a laptop.
 
@@ -35,9 +36,9 @@ This project implements a local **lakehouse-style modern data stack** that simul
 | :--- | :--- | :---: | :--- |
 | **Ingestion** | Crawler | 🐍 Python | Fetches product listings from the Tiki API and stores raw extracts as Parquet files. |
 | **Storage** | Object Store | 🪣 MinIO | Hosts the raw Bronze data and curated lakehouse outputs. |
-| **Transform** | Data Modeling | 🔨 dbt + Trino (Iceberg) | Cleans and models the raw data into staging and mart layers. |
+| **Transform** | Data Modeling | 🔨 dbt + Trino (Iceberg) | Cleans and models the raw data into staging and mart layers (Star Schema). |
 | **Orchestration** | Scheduler | 🌬️ Airflow | Runs the daily crawl → dbt → analytics workflow. |
-| **Visualization** | BI Tool | 📊 Superset | Connects to Trino for dashboarding and ad hoc analysis. |
+| **Visualization** | BI Tool | 📊 Power BI / Superset | Connects to Trino for dashboarding and ad hoc analysis. |
 | **Analytics** | Reporting | 📈 Trino + Matplotlib | Produces local analysis charts from curated mart tables. |
 
 ## 📂 Project Structure
@@ -112,11 +113,12 @@ make airflow
 
 ## 🔗 Monitoring & Access
 
-| Service | URL | Credentials |
+| Service / Tool | URL / Access | Credentials |
 | :--- | :--- | :--- |
 | **MinIO Console** | `http://localhost:9001` | Defined in `.env` |
 | **MinIO API** | `http://localhost:9000` | S3-compatible endpoint |
 | **Trino Server** | `http://localhost:8080` | User: `trino` |
+| **Power BI Desktop** | Connect locally to Trino | Server: `localhost:8080` |
 | **Superset** | `http://localhost:8088` | Defined in `.env` |
 | **Airflow Webserver** | `http://localhost:8081` | Standalone local mode |
 
@@ -126,8 +128,8 @@ The exact passwords and usernames are loaded from `.env`, which can be created f
 
 1. **Bronze Layer**: `crawler/fetch_tiki.py` fetches product data from Tiki.vn, normalizes nested fields for Parquet compatibility, and uploads raw extracts to the MinIO `raw-data` bucket under `tiki_products/`.
 2. **Silver Layer**: dbt staging models in `dbt_tiki/models/staging/` read the raw Parquet files from MinIO through Trino, clean the fields, and standardize types for downstream modeling.
-3. **Gold Layer**: dbt mart models in `dbt_tiki/models/marts/` build dimensional and fact outputs as Apache Iceberg tables in the lakehouse storage layer.
-4. **Serving Layer**: Superset connects to the lakehouse outputs via Trino engine for visualizations.
+3. **Gold Layer**: dbt mart models in `dbt_tiki/models/marts/` build dimensional and fact outputs as Apache Iceberg tables in the lakehouse storage layer, modeled using a Star Schema.
+4. **Serving Layer**: Power BI (or Superset) connects to the lakehouse outputs via the Trino engine for visualizations.
 5. **Analytics Layer**: `src/analytics_plot.py` reads curated marts through Trino and writes local chart outputs to `assets/analytics/`.
 
 ## 🌬️ Airflow Orchestration
@@ -176,8 +178,23 @@ The sections below are ready for you to drop in real screenshots later. Replace 
 ### 2. MinIO S3 Storage
 <img src="assets/Minio_Lakehouse.png" width="800" alt="MinIO S3 Storage">
 
-### 3. Superset Connection & Dataset Setup
-To connect Superset to Trino, use the following connection details:
+### 3. BI & Visualization Setup
+
+#### Power BI Connection (Recommended)
+Power BI Desktop connects directly to Trino via the native Trino connector.
+- **Server**: `localhost:8080`
+- **Catalog**: `iceberg`
+- **Schema**: `gold`
+- **Data Connectivity Mode**: DirectQuery (recommended for real-time querying) or Import.
+- **Authentication**: Select **Database** or **Basic/No Authentication** (User Name: `trino`, password: leave empty).
+- **Modeling**: The tables in the `gold` schema are designed as a classic Kimball Star Schema (`dim_products`, `dim_sellers`, `dim_categories`, `dim_dates`, `fct_product_snapshots`), facilitating seamless auto-detection of relationships and quick dashboard design.
+
+<p align="center">
+	<img src="assets/Power_BI_Visualization.png" width="800" alt="Power BI Dashboard">
+</p>
+
+#### Apache Superset Connection (Alternative)
+Superset is running as part of the containerized stack if you want to use it.
 - **Database**: Trino
 - **SQLAlchemy URI**: `trino://trino@trino:8080/iceberg/gold`
 

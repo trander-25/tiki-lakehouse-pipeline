@@ -15,8 +15,6 @@ models:
         description: Name of the product.
       - name: current_price
         description: Current selling price.
-      - name: list_price
-        description: Original list price.
       - name: discount
         description: Discount amount.
       - name: discount_rate
@@ -27,10 +25,6 @@ models:
         description: Average customer rating.
       - name: review_count
         description: Number of reviews.
-      - name: order_count
-        description: Number of orders.
-      - name: favourite_count
-        description: Number of times favorited.
       - name: url_path
         description: Relative URL path of the product.
       - name: thumbnail_url
