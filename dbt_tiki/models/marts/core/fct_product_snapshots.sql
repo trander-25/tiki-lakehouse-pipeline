@@ -50,14 +50,11 @@ final as (
             )
         ) as category_key,
         n.current_price,
-        n.list_price,
         n.discount,
         n.discount_rate,
         n.original_price,
         n.rating_average,
         n.review_count,
-        n.order_count,
-        n.favourite_count,
         n.quantity_sold_count as cumulative_quantity_sold,
 
         -- Calculate daily quantity sold based on incremental diff

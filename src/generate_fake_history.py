@@ -117,13 +117,39 @@ def main():
         for p_idx, pid in enumerate(product_ids):
             incremental_sales[dt][pid] = sales_profiles[p_idx][1]()
             
-    # Tính lượng lũy kế ban đầu tại ngày start_dt
+    # Tính lượng lũy kế ban đầu tại ngày start_dt cho quantity_sold và review_count
     cumulative_sold = {}
+    cumulative_reviews = {}
+    product_daily_reviews = {pid: {dt: 0 for dt in date_range} for pid in product_ids}
+    
     for p_idx, r in df_temp.iterrows():
         pid = r['id']
+        
+        # 1. Quantity Sold Backtracking
         final_cumulative = parse_cumulative_sales(r.get('quantity_sold'))
         total_generated_sales = sum(incremental_sales[dt][pid] for dt in date_range)
         cumulative_sold[pid] = max(0, final_cumulative - total_generated_sales)
+        
+        # 2. Review Count Backtracking
+        final_reviews = int(r.get('review_count', 0)) if pd.notnull(r.get('review_count')) else 0
+        if final_reviews > 0 and total_generated_sales > 0:
+            days_with_sales = []
+            for dt in date_range:
+                sales_on_day = incremental_sales[dt][pid]
+                for _ in range(sales_on_day):
+                    days_with_sales.append(dt)
+            
+            rate = np.random.uniform(0.02, 0.08)
+            total_new_reviews = min(final_reviews, int(len(days_with_sales) * rate))
+            
+            if total_new_reviews > 0:
+                chosen_days = np.random.choice(days_with_sales, size=total_new_reviews, replace=False)
+                for cd in chosen_days:
+                    product_daily_reviews[pid][cd] += 1
+            
+            cumulative_reviews[pid] = final_reviews - total_new_reviews
+        else:
+            cumulative_reviews[pid] = final_reviews
         
     # 6. Tạo dữ liệu cho từng ngày và nạp lên MinIO
     for d_idx, dt in enumerate(date_range):
@@ -149,6 +175,19 @@ def main():
             daily_sale = incremental_sales[dt][pid]
             cumulative_sold[pid] += daily_sale
             df_day.at[idx, 'quantity_sold'] = f"{{'text': 'Đã bán {cumulative_sold[pid]}', 'value': {cumulative_sold[pid]}}}"
+            
+            # Cập nhật trường review_count
+            daily_reviews = product_daily_reviews[pid][dt]
+            cumulative_reviews[pid] += daily_reviews
+            df_day.at[idx, 'review_count'] = int(cumulative_reviews[pid])
+            
+            # Cập nhật trường rating_average dựa trên review_count
+            final_rating = float(row['rating_average']) if pd.notnull(row['rating_average']) else 0.0
+            if cumulative_reviews[pid] == 0:
+                current_rating = 0.0
+            else:
+                current_rating = final_rating
+            df_day.at[idx, 'rating_average'] = float(current_rating)
             
             # Giả lập biến động giá bán (khuyến mãi)
             orig_price = float(row['list_price']) if pd.notnull(row['list_price']) and float(row['list_price']) > 0 else float(row['price'])

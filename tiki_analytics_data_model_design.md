@@ -14,7 +14,7 @@ This document provides a detailed overview of the redesigned dimensional model (
   * **c) Potential Product Discovery**: 
     * Identifying potential books (e.g., high average ratings but low sales counts).
     * Identifying trending books (fastest sales volume growth over a 7-day window).
-  * **d) Pricing & Promotion Strategy**: Analyzing competitor price fluctuations, list price margins, and active discount distributions.
+  * **d) Pricing & Promotion Strategy**: Analyzing competitor price fluctuations, original price margins, and active discount distributions.
 
 ---
 
@@ -68,14 +68,11 @@ erDiagram
         varchar seller_id FK
         varchar category_key FK
         double current_price
-        double list_price
         double discount
         double discount_rate
         double original_price
         double rating_average
         integer review_count
-        integer order_count
-        integer favourite_count
         integer cumulative_quantity_sold
         integer daily_quantity_sold
         double daily_gmv

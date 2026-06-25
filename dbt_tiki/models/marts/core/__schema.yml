@@ -102,8 +102,6 @@ models:
           - not_null
       - name: current_price
         description: Current price of the product at snapshot time.
-      - name: list_price
-        description: Original list price.
       - name: discount
         description: Discount amount.
       - name: discount_rate
@@ -114,10 +112,6 @@ models:
         description: Average customer rating.
       - name: review_count
         description: Number of reviews.
-      - name: order_count
-        description: Number of orders.
-      - name: favourite_count
-        description: Number of times favorited.
       - name: cumulative_quantity_sold
         description: All-time cumulative quantity sold reported by Tiki.
       - name: daily_quantity_sold
